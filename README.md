@@ -115,9 +115,6 @@ faceattend/
 tests/
 ```
 
-## History
-
-The first version was a Flask and KNN tutorial project from the [Machine Learning Projects](https://machinelearningprojects.net/face-recognition-based-attendance-system/) blog, which compared raw pixels and could not tell a stranger from a registered person. This version is a complete rewrite with a different design: real face embeddings, unknown-face rejection, a browser camera, a database, an admin token, tests, CI and Docker.
 
 ## Credits
 
