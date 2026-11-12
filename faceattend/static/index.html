@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>FaceAttend</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <script type="module" src="/js/main.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img src="/favicon.svg" alt="" width="28" height="28" />
+        <span>FaceAttend</span>
+      </div>
+      <nav class="tabs" aria-label="Sections">
+        <button type="button" class="tab" data-view="scan">Scan</button>
+        <button type="button" class="tab" data-view="register">Register</button>
+        <button type="button" class="tab" data-view="dashboard">Dashboard</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Scan -->
+      <section id="view-scan" class="view" hidden>
+        <div class="split">
+          <div class="stage" id="scan-stage">
+            <video id="scan-video" playsinline muted></video>
+            <canvas id="scan-overlay"></canvas>
+            <div class="stage-empty" id="scan-empty">Camera is off</div>
+          </div>
+          <aside class="panel">
+            <div class="row">
+              <button id="scan-toggle" class="btn primary" type="button">Start camera</button>
+              <span id="scan-status" class="chip">Camera off</span>
+            </div>
+            <h2>Activity</h2>
+            <ul id="scan-log" class="log" aria-live="polite">
+              <li class="muted">Nothing yet. Start the camera and look at it.</li>
+            </ul>
+            <p class="hint">
+              Attendance is recorded after a person is recognised twice within a few seconds, and
+              only once per day. Unknown faces are never recorded.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Register -->
+      <section id="view-register" class="view" hidden>
+        <div class="split">
+          <div class="stage" id="reg-stage">
+            <video id="reg-video" playsinline muted></video>
+            <div class="stage-empty" id="reg-empty">Camera is off</div>
+            <div class="prompt" id="reg-prompt" hidden></div>
+          </div>
+          <form id="reg-form" class="panel" autocomplete="off">
+            <h2>Register a person</h2>
+            <label>
+              Full name
+              <input id="reg-name" name="name" required maxlength="80" />
+            </label>
+            <label>
+              ID
+              <input id="reg-code" name="code" required maxlength="32" placeholder="e.g. EMP-104" />
+            </label>
+            <label class="check">
+              <input id="reg-consent" type="checkbox" required />
+              <span>
+                This person agrees to a numeric template of their face being stored for
+                attendance, and can ask for it to be deleted at any time. No photos are kept.
+              </span>
+            </label>
+            <div class="row">
+              <button id="reg-camera" type="button" class="btn">Start camera</button>
+              <button id="reg-submit" type="submit" class="btn primary" disabled>
+                Capture &amp; register
+              </button>
+            </div>
+            <div class="dots" id="reg-dots" aria-hidden="true"></div>
+            <p id="reg-message" class="message" role="status"></p>
+            <p class="hint">
+              Face the camera in good light, then follow the prompts. Five quick shots are taken.
+            </p>
+          </form>
+        </div>
+      </section>
+
+      <!-- Dashboard -->
+      <section id="view-dashboard" class="view" hidden>
+        <div class="toolbar">
+          <label>Day <input type="date" id="dash-day" /></label>
+          <button id="dash-refresh" class="btn" type="button">Refresh</button>
+          <span class="spacer"></span>
+          <label>From <input type="date" id="exp-start" /></label>
+          <label>To <input type="date" id="exp-end" /></label>
+          <button id="exp-go" class="btn" type="button">Export CSV</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><span class="stat-label">Present</span><b id="stat-present">0</b></div>
+          <div class="stat"><span class="stat-label">Absent</span><b id="stat-absent">0</b></div>
+          <div class="stat"><span class="stat-label">Registered</span><b id="stat-registered">0</b></div>
+          <div class="stat"><span class="stat-label">Attendance</span><b id="stat-rate">0%</b></div>
+        </div>
+
+        <div class="cols">
+          <div class="card">
+            <h2>Present</h2>
+            <table id="present-table">
+              <thead><tr><th>Name</th><th>ID</th><th>Time</th><th>Match</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <p id="present-empty" class="muted" hidden>Nobody has been marked present yet.</p>
+          </div>
+          <div class="card">
+            <h2>Absent</h2>
+            <ul id="absent-list" class="plain"></ul>
+            <p id="absent-empty" class="muted" hidden>Everyone registered is present.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Last 14 days</h2>
+          <div id="trend" class="trend" role="img" aria-label="People present per day"></div>
+        </div>
+
+        <div class="card">
+          <h2>People</h2>
+          <table id="people-table">
+            <thead><tr><th>Name</th><th>ID</th><th>Samples</th><th>Registered</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p id="people-empty" class="muted" hidden>
+            Nobody is registered yet. Use the Register tab to add the first person.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="login">
+      <form method="dialog" id="login-form">
+        <h2>Admin token</h2>
+        <p class="muted">This section is protected. Enter the admin token for this server.</p>
+        <input id="login-token" type="password" autocomplete="off" aria-label="Admin token" />
+        <p id="login-error" class="message bad" role="alert"></p>
+        <div class="row end">
+          <button type="button" id="login-cancel" class="btn">Cancel</button>
+          <button type="submit" class="btn primary">Unlock</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

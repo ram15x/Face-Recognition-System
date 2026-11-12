@@ -1,0 +1,6 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+python-multipart>=0.0.9
+# The face models are tested against OpenCV 4.x
+opencv-python-headless>=4.9,<5
+numpy>=1.26

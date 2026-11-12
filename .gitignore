@@ -1,0 +1,16 @@
+# Runtime data: face embeddings and attendance records must never be committed
+data/
+demo-data/
+*.db
+*.db-wal
+*.db-shm
+
+# Downloaded model weights
+models/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/

@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: ruff format --check .
+      - name: Cache face models
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: face-models-v1
+      - name: Download face models
+        run: python -m faceattend.models
+      - name: Tests (including the real face models)
+        run: python -m pytest -v -rs
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t faceattend .
+      - name: Start it and wait for the health check
+        run: |
+          docker run -d --name fa -p 8000:8000 faceattend
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health; then exit 0; fi
+            sleep 1
+          done
+          docker logs fa
+          exit 1

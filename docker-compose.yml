@@ -1,0 +1,15 @@
+services:
+  faceattend:
+    build: .
+    ports:
+      # Bound to this computer only. Browsers allow the camera on localhost without HTTPS.
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Set a token to protect registering, deleting, listing and exporting.
+      ATTENDANCE_ADMIN_TOKEN: "${ATTENDANCE_ADMIN_TOKEN:-}"
+    volumes:
+      - faceattend-data:/data
+    restart: unless-stopped
+
+volumes:
+  faceattend-data:
