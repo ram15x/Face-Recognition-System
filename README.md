@@ -123,4 +123,8 @@ The matching, rules and API are tested with a stand-in face engine, so those tes
 
 Face detection: **YuNet**. Face recognition: **SFace**. Both from the OpenCV Zoo (MIT and Apache-2.0 licensed). Built with [OpenCV](https://opencv.org/) and [FastAPI](https://fastapi.tiangolo.com/).
 
+## More
+
+Notes on the results and on running it: [docs/notes.md](docs/notes.md).
+
 Released under the [MIT License](LICENSE).
